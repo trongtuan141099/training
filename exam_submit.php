@@ -34,6 +34,9 @@ if (!$result['success']) {
         . '</div>');
 }
 
+// Xóa cache bộ câu hỏi ngẫu nhiên của phiên thi này
+unset($_SESSION['exam_rand_q_' . $examId . '_' . $currentUser['id']]);
+
 // Chuyển hướng sang trang hiển thị kết quả
 header('Location: exam_result.php?attempt_id=' . $result['attempt_id']);
 exit;

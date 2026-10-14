@@ -100,6 +100,87 @@ function gradeQuestion(array $question, $rawUserResponse): array {
         ];
     }
 
+    // Kiểm tra nếu có cấu hình danh sách nhiều Vùng lỗi ROI (Hotspot & ROI Editor)
+    if (!empty($config['rois']) && is_array($config['rois'])) {
+        $clickX = isset($userResponse['clicked_x_pct']) ? (float)$userResponse['clicked_x_pct'] : null;
+        $clickY = isset($userResponse['clicked_y_pct']) ? (float)$userResponse['clicked_y_pct'] : null;
+        
+        $drawnPoints = $userResponse['drawn_polygon'] ?? [];
+        if (!empty($drawnPoints)) {
+            $sumX = 0; $sumY = 0; $cnt = count($drawnPoints);
+            foreach ($drawnPoints as $pt) {
+                $sumX += (float)$pt['x'];
+                $sumY += (float)$pt['y'];
+            }
+            $clickX = $sumX / max(1, $cnt);
+            $clickY = $sumY / max(1, $cnt);
+        }
+
+        if ($clickX === null || $clickY === null) {
+            return [
+                'is_correct'    => false,
+                'awarded_score' => 0.00,
+                'needs_manual'  => false,
+                'feedback'      => 'Bạn chưa chạm hoặc khoanh vùng vị trí trên hình ảnh.'
+            ];
+        }
+
+        // Duyệt qua tất cả các ROI được Admin/Trainer thiết lập
+        foreach ($config['rois'] as $roi) {
+            $matched = false;
+            $type = $roi['type'] ?? 'rect';
+            $label = $roi['label'] ?? 'Vùng lỗi kỹ thuật';
+
+            if ($type === 'rect') {
+                $rx = (float)$roi['x'];
+                $ry = (float)$roi['y'];
+                $rw = (float)$roi['w'];
+                $rh = (float)$roi['h'];
+                $pad = 3.5; // Dung sai lề 3.5%
+                if ($clickX >= ($rx - $pad) && $clickX <= ($rx + $rw + $pad) &&
+                    $clickY >= ($ry - $pad) && $clickY <= ($ry + $rh + $pad)) {
+                    $matched = true;
+                }
+            } elseif ($type === 'hotspot' || $type === 'point') {
+                $hx = (float)$roi['x'];
+                $hy = (float)$roi['y'];
+                $hr = (float)($roi['r'] ?? 7.5);
+                $dist = sqrt(pow($clickX - $hx, 2) + pow($clickY - $hy, 2));
+                if ($dist <= $hr) {
+                    $matched = true;
+                }
+            } elseif ($type === 'polygon' && !empty($roi['points'])) {
+                $pts = $roi['points'];
+                $inside = false;
+                $n = count($pts);
+                for ($i = 0, $j = $n - 1; $i < $n; $j = $i++) {
+                    $xi = (float)$pts[$i]['x']; $yi = (float)$pts[$i]['y'];
+                    $xj = (float)$pts[$j]['x']; $yj = (float)$pts[$j]['y'];
+                    $intersect = (($yi > $clickY) != ($yj > $clickY))
+                        && ($clickX < ($xj - $xi) * ($clickY - $yi) / max(0.0001, ($yj - $yi)) + $xi);
+                    if ($intersect) $inside = !$inside;
+                }
+                if ($inside) $matched = true;
+            }
+
+            if ($matched) {
+                return [
+                    'is_correct'    => true,
+                    'awarded_score' => $maxScore,
+                    'needs_manual'  => false,
+                    'feedback'      => sprintf('Chính xác! Bạn đã phát hiện đúng vị trí [%s].', $label)
+                ];
+            }
+        }
+
+        return [
+            'is_correct'    => false,
+            'awarded_score' => 0.00,
+            'needs_manual'  => false,
+            'feedback'      => 'Chưa chính xác. Vị trí bạn chọn không nằm trong các vùng lỗi quy định trên ảnh.'
+        ];
+    }
+
     // 1. HOTSPOT_PINPOINT (Chạm ngón tay vào vị trí linh kiện / nút bấm trên ảnh)
     if ($qType === 'HOTSPOT_PINPOINT') {
         $targetX = (float)($config['target_x_pct'] ?? 0);
@@ -289,12 +370,20 @@ function submitExamAttempt(int $userId, int $examId, array $submittedAnswers): a
         ]);
         $attemptId = (int)$db->lastInsertId();
 
-        // Lấy danh sách câu hỏi
-        $stmtQ = $db->prepare('SELECT * FROM questions WHERE exam_id = :eid ORDER BY sort_order ASC');
-        $stmtQ->execute(['eid' => $examId]);
-        $questions = $stmtQ->fetchAll();
+        // Lấy danh sách câu hỏi cần chấm (hỗ trợ đề thi bốc ngẫu nhiên)
+        $submittedQids = array_filter(array_keys($submittedAnswers), 'is_numeric');
+        if (!empty($submittedQids)) {
+            $inQids = array_map('intval', $submittedQids);
+            $inClause = implode(',', $inQids);
+            $questions = $db->query("SELECT * FROM questions WHERE id IN ($inClause) ORDER BY sort_order ASC, id ASC")->fetchAll();
+        } else {
+            $stmtQ = $db->prepare('SELECT * FROM questions WHERE exam_id = :eid ORDER BY sort_order ASC, id ASC');
+            $stmtQ->execute(['eid' => $examId]);
+            $questions = $stmtQ->fetchAll();
+        }
 
         $totalScoreObtained = 0.00;
+        $totalMaxScore = 0.00;
         $hasManualEssay = false;
 
         $stmtInsertAns = $db->prepare('
@@ -304,6 +393,7 @@ function submitExamAttempt(int $userId, int $examId, array $submittedAnswers): a
 
         foreach ($questions as $q) {
             $qid = (int)$q['id'];
+            $totalMaxScore += (float)$q['score'];
             $rawResponse = $submittedAnswers[$qid] ?? [];
             $gradeResult = gradeQuestion($q, $rawResponse);
 
@@ -323,8 +413,11 @@ function submitExamAttempt(int $userId, int $examId, array $submittedAnswers): a
             ]);
         }
 
+        if ($totalMaxScore <= 0) {
+            $totalMaxScore = (float)$exam['total_score'];
+        }
+
         $minPassScore = (float)$exam['min_pass_score'];
-        $totalMaxScore = (float)$exam['total_score'];
         $finalStatus = $hasManualEssay ? 'PENDING_EVALUATION' : 'COMPLETED';
         $passPercentage = ($totalMaxScore > 0) ? (($totalScoreObtained / $totalMaxScore) * 100) : 0;
         $isPassed = (!$hasManualEssay && $passPercentage >= $minPassScore);

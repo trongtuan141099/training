@@ -23,47 +23,40 @@ Hệ thống Web Full-stack chuyên biệt cho môi trường nhà máy sản xu
 
 ## 2. GIAO DIỆN & UI/UX CHUẨN NHÀ MÁY SẢN XUẤT (NEW)
 
-- **Tone màu chủ đạo:** Xanh công nghiệp (Industrial Blue `#1E3A8A` / Dark Sidebar `#0B1120` & `#0F172A`) kết hợp viền thẻ card bo góc tinh tế, độ tương phản cao, chống chói dưới ánh sáng đèn xưởng.
-- **Bố cục chuẩn:**
-  - **Sidebar bên trái (Dark Industrial):** Phân nhóm chức năng rõ ràng:
-    - *Tổng quan:* Lộ trình Đào tạo, Ma trận Kỹ năng (Skillmap).
-    - *Quản lý Sản xuất & Đào tạo:* Thiết kế & Tạo bài thi (Exam Builder), Quản lý tài liệu SOP.
-    - *Quản lý Chất lượng & Đánh giá:* Bàn chấm bài Tự luận, Lịch sử làm bài.
-    - *Hệ thống & Báo cáo:* Quản trị Xưởng & KPI.
-  - **Header trên cùng:**
-    - Nút Toggle mở/đóng Sidebar trên điện thoại di động (Drawer cảm ứng).
-    - Vị trí phân xưởng hiện tại (*Line SMT-01 - Panasonic NPM-D3*).
-    - Bộ chuyển đổi ngôn ngữ nhanh **VI 🇻🇳 / EN 🇬🇧**.
-    - Chuông thông báo có số đếm bài thi tự luận đang chờ chấm.
-    - Tài khoản cá nhân với Role badge và Menu chuyển đổi vai trò Demo tức thì.
+- **Tone màu chủ đạo:** Xanh công nghiệp (Industrial Blue `#1E3A8A` / Royal Blue `#1D4ED8`) kết hợp Dark mode `#0B1120`, viền bo góc tinh tế, độ tương phản cao, chống chói dưới ánh sáng đèn xưởng.
+- **Bố cục Chuẩn Tối Ưu (Scroll & Fixed Layout):**
+  - **Header trên cùng (Fixed Top):** Cố định toàn màn hình với Logo DX Plastic Group, Vị trí chuyền SMT-01, Chuông thông báo, Chuyển đổi ngôn ngữ VI/EN, Dark/Light mode và Menu Demo Switcher.
+  - **Sidebar bên trái (Fixed Full-Height):** Cố định bên trái kéo dài toàn bộ chiều cao từ Header xuống sát Footer, sở hữu thanh cuộn riêng khi mở menu con, không bị trôi khi cuộn nội dung chính.
+  - **Thanh cuộn riêng cho Nội dung chính (Independent Main Scroll):** Người dùng thoải mái cuộn xem thông tin, bảng biểu, ảnh sơ đồ mà Header, Sidebar và Footer luôn cố định ở vị trí chuẩn.
+  - **Footer dưới cùng (Fixed Bottom):** Cố định ở đáy màn hình, luôn hiển thị bản quyền, tiêu chuẩn Lean Dojo và trạng thái mạng LAN.
 
 ---
 
-## 3. CÁC MODULE CHỨC NĂNG CỐT LÕI
+## 3. CÁC MODULE CHỨC NĂNG MỚI NÂNG CAO
 
-### 1. Module Đa ngôn ngữ (Localization Engine - VI/EN)
-- File xử lý: `includes/lang.php`.
-- Hỗ trợ chuyển đổi ngôn ngữ tức thời giữa Tiếng Việt và Tiếng Anh trên toàn bộ hệ thống bằng 1 cú click trên thanh Header.
-- Đảm bảo 100% tiếng Việt có dấu chuẩn Unicode UTF-8, không lỗi font.
+### 1. Rà soát & Chuẩn hóa Font Tiếng Việt (Unicode UTF-8)
+- 100% CSDL và mã nguồn được chuẩn hóa `utf8mb4_unicode_ci`, loại bỏ triệt để tình trạng lỗi font `??` hay sai lệch dấu thanh.
+- Tích hợp chuẩn phông chữ **Inter** tối ưu hiển thị tiếng Việt có dấu rõ nét trên cả màn hình máy trạm PC và điện thoại/máy tính bảng cảm ứng.
 
-### 2. Module Thiết kế & Tạo bài thi Mới (Exam Builder)
-- File xử lý: `exam_builder.php`.
-- Cho phép Admin và Trainer:
-  - Khởi tạo khóa học và bài kiểm tra phân cấp: **Cơ bản (Cấp 1) -> Nâng cao (Cấp 2) -> Chuyên gia (Cấp 3)**.
-  - Thiết lập logic chặn cấp độ: Chọn khóa học cấp trước (`prerequisite_course_id`) và điểm chuẩn đạt (`min_pass_score`, ví dụ: 80%).
-  - Thêm đa dạng câu hỏi:
-    - Trắc nghiệm đơn, trắc nghiệm nhiều đáp án, Đúng/Sai.
-    - Tự luận (Essay) kèm tiêu chuẩn chấm (Rubric).
-    - **Tương tác trực quan:** Chạm điểm linh kiện (Hotspot Pinpoint) và Khoanh vùng lỗi (Polygon Defect) có hỗ trợ tải ảnh máy thực tế hoặc dùng ảnh có sẵn trong hệ thống.
-    - Kéo thả thứ tự quy trình chuẩn (Drag & Drop Sequence).
+### 2. Module Thiết kế Đề thi & Câu hỏi Tương tác Nâng cao (Exam Builder)
+- File xử lý: `exam_builder.php`, `assets/js/interactive-canvas.js`.
+- **Chèn hình ảnh trực tiếp vào câu hỏi:** Hỗ trợ chèn sơ đồ máy, ảnh bo mạch, ảnh lỗi cho mọi dạng câu hỏi (Trắc nghiệm đơn, trắc nghiệm nhiều đáp án, Đúng/Sai, Kéo thả, Tự luận).
+- **Trình Biên tập Vùng Lỗi / Chỉ Vị trí Lỗi Trực quan (Hotspot & ROI Editor):**
+  - Cho phép Admin/Trainer tải ảnh lên, trực tiếp dùng chuột kéo/khoanh nhiều vùng khác nhau (Multi-ROI) trên cùng một bức ảnh (Khoanh vùng chữ nhật Bounding Box hoặc Chỉ điểm Hotspot).
+  - Tự động tính toán tọa độ phần trăm (%) chuẩn hóa tương thích mọi kích thước màn hình.
+  - Cho phép đặt nhãn từng vùng lỗi (VD: *Lỗi dính chân IC 14-16*, *Mối hàn rỗ khí*, *Nút dừng E-STOP*).
+- **Chức năng Bốc đề ngẫu nhiên (Randomized Question Drawer):**
+  - Tự động bốc ngẫu nhiên số lượng câu hỏi từ ngân hàng đề thi hoặc ngân hàng chuyên môn theo cấu hình đề.
+  - Chức năng Bốc thử 1 đề mẫu ngẫu nhiên (Live Preview) ngay tại Bàn thiết kế đề thi.
+  - Tự động chia tỷ lệ điểm chuẩn 100% theo đúng số lượng câu hỏi được bốc.
 
-### 3. Module Thiết lập & Quản lý Tài liệu SOP (SOP Hub)
-- File xử lý: `sop_manager.php`.
-- Cho phép tải lên và quản lý tài liệu hướng dẫn công việc (SOP):
-  - Định dạng: PDF quy chuẩn, Video thao tác (MP4/WebM), Hình ảnh sơ đồ SOP (SVG/PNG/JPG).
-  - Tự động lưu vào thư mục `uploads/materials/`.
-  - Liên kết trực tiếp với các bài học và bài thi để công nhân xem trước khi làm bài.
-  - Xem trước file gốc hoặc xóa tài liệu nhanh chóng.
+### 3. Module Tài liệu SOP & Video Đào tạo Tương tác
+- File xử lý: `course.php`, `sop_manager.php`.
+- **Hiển thị Video Đào tạo SOP Trực quan:** Hỗ trợ phát video hướng dẫn thao tác tiêu chuẩn trực tiếp trên giao diện bài học.
+- **Nhúng Hiệu ứng Tương tác Động trên Video (Pop-up Mini-quiz):**
+  - Tự động tạm dừng video tại các mốc giây quy định để bật câu hỏi pop-up kiểm tra độ tập trung của người học.
+  - Phản hồi tức thì: Nếu trả lời đúng cho phép tiếp tục xem video; nếu trả lời sai cung cấp chức năng tua lại 5 giây trước để xem lại quy chuẩn thao tác.
+  - Công cụ quản lý điểm dừng tương tác trực quan cho Trainer trong `sop_manager.php`.
 
 ### 4. Lộ trình Đào tạo & Khóa Tiền đề (Prerequisite Workflow)
 - Khóa học cấp sau chỉ mở khóa khi công nhân đã thi đỗ (&ge; 80%) ở cấp trước.

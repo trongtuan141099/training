@@ -35,23 +35,74 @@ if (!$access['allowed']) {
     </div>');
 }
 
-// Lấy danh sách câu hỏi
-$stmtQ = $db->prepare('SELECT * FROM questions WHERE exam_id = :eid ORDER BY sort_order ASC, id ASC');
-$stmtQ->execute(['eid' => $examId]);
-$questions = $stmtQ->fetchAll();
+// Lấy danh sách câu hỏi (Hỗ trợ bốc ngẫu nhiên nếu bài thi được cấu hình is_randomized = 1)
+$isRandomizedExam = !empty($exam['is_randomized']);
+$randomCount = max(1, (int)($exam['random_question_count'] ?: 5));
+$bankMode = $exam['question_bank_mode'] ?? 'EXAM_POOL';
+$sessionKey = 'exam_rand_q_' . $examId . '_' . $currentUser['id'];
+
+if ($isRandomizedExam) {
+    if (!empty($_SESSION[$sessionKey]) && is_array($_SESSION[$sessionKey])) {
+        $qIds = array_map('intval', $_SESSION[$sessionKey]);
+        $inClause = implode(',', $qIds);
+        $questions = $db->query("SELECT * FROM questions WHERE id IN ($inClause) ORDER BY FIELD(id, $inClause)")->fetchAll();
+    } else {
+        if ($bankMode === 'SKILL_CATEGORY') {
+            $stmtRand = $db->prepare('
+                SELECT q.* FROM questions q
+                JOIN exams e ON e.id = q.exam_id
+                JOIN courses c ON c.id = e.course_id
+                WHERE c.skill_id = :sid
+                ORDER BY RAND()
+                LIMIT :lim
+            ');
+            $stmtRand->bindValue(':sid', $exam['skill_id'] ?? 1, PDO::PARAM_INT);
+            $stmtRand->bindValue(':lim', $randomCount, PDO::PARAM_INT);
+            $stmtRand->execute();
+            $questions = $stmtRand->fetchAll();
+        } else {
+            $stmtRand = $db->prepare('
+                SELECT * FROM questions WHERE exam_id = :eid
+                ORDER BY RAND()
+                LIMIT :lim
+            ');
+            $stmtRand->bindValue(':eid', $examId, PDO::PARAM_INT);
+            $stmtRand->bindValue(':lim', $randomCount, PDO::PARAM_INT);
+            $stmtRand->execute();
+            $questions = $stmtRand->fetchAll();
+        }
+
+        if (empty($questions)) {
+            $stmtFallback = $db->prepare('SELECT * FROM questions WHERE exam_id = :eid ORDER BY sort_order ASC, id ASC');
+            $stmtFallback->execute(['eid' => $examId]);
+            $questions = $stmtFallback->fetchAll();
+        }
+
+        $_SESSION[$sessionKey] = array_column($questions, 'id');
+    }
+} else {
+    $stmtQ = $db->prepare('SELECT * FROM questions WHERE exam_id = :eid ORDER BY sort_order ASC, id ASC');
+    $stmtQ->execute(['eid' => $examId]);
+    $questions = $stmtQ->fetchAll();
+}
 
 $pageTitle = 'Làm bài thi: ' . $exam['title'];
 require_once __DIR__ . '/includes/header.php';
 ?>
 
 <!-- Sticky Exam Header with Timer & Progress -->
-<div class="sticky top-16 z-40 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border border-slate-200 dark:border-slate-800 rounded-2xl p-4 mb-6 shadow-sm">
+<div class="sticky top-0 z-20 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border border-slate-200 dark:border-slate-800 rounded-2xl p-4 mb-6 shadow-sm">
     <div class="flex items-center justify-between flex-wrap gap-3">
         <div>
             <div class="flex items-center space-x-2">
                 <span class="px-2 py-0.5 rounded bg-blue-50 dark:bg-blue-950 text-blue-700 dark:text-blue-400 border border-blue-200 dark:border-blue-800 text-[10px] font-bold uppercase">
                     Cấp độ <?= $exam['course_level'] ?>
                 </span>
+                <?php if ($isRandomizedExam): ?>
+                <span class="px-2 py-0.5 rounded bg-purple-50 dark:bg-purple-950 text-purple-700 dark:text-purple-400 border border-purple-200 dark:border-purple-800 text-[10px] font-bold">
+                    <i class="fa-solid fa-shuffle mr-1"></i> Bốc Đề Ngẫu Nhiên
+                </span>
+                <?php endif; ?>
                 <h1 class="text-sm sm:text-base font-black text-slate-900 dark:text-white truncate max-w-md">
                     <?= htmlspecialchars($exam['title']) ?>
                 </h1>
@@ -118,6 +169,17 @@ require_once __DIR__ . '/includes/header.php';
         </div>
 
         <div class="p-5 sm:p-6 bg-white dark:bg-slate-900">
+
+            <!-- Hiển thị ảnh đính kèm cho mọi loại câu hỏi (nếu có media_url) -->
+            <?php if (!empty($q['media_url']) && !in_array($qType, ['HOTSPOT_PINPOINT', 'POLYGON_DEFECT'], true)): ?>
+            <div class="mb-5 rounded-2xl overflow-hidden border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 p-3 text-center shadow-inner">
+                <img src="<?= htmlspecialchars($q['media_url']) ?>" alt="Hình ảnh câu hỏi #<?= $qNum ?>" class="max-h-80 max-w-full rounded-xl mx-auto object-contain cursor-zoom-in transition hover:opacity-95" onclick="window.open(this.src, '_blank')" title="Bấm vào để xem ảnh kích thước đầy đủ">
+                <p class="text-[11px] text-slate-400 mt-2 font-medium flex items-center justify-center space-x-1.5">
+                    <i class="fa-solid fa-magnifying-glass-plus text-blue-500"></i>
+                    <span>Hình ảnh minh họa thực tế (Bấm vào ảnh để phóng to)</span>
+                </p>
+            </div>
+            <?php endif; ?>
 
             <!-- 1. SINGLE_CHOICE hoặc TRUE_FALSE -->
             <?php if ($qType === 'SINGLE_CHOICE' || $qType === 'TRUE_FALSE'): ?>

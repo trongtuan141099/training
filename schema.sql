@@ -57,6 +57,7 @@ CREATE TABLE course_materials (
     material_type ENUM('PDF', 'VIDEO', 'IMAGE_SOP', 'HTML') NOT NULL,
     file_path TEXT NOT NULL,
     content_text LONGTEXT NULL,
+    interactive_config JSON NULL,
     sort_order INT DEFAULT 0,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (course_id) REFERENCES courses(id) ON DELETE CASCADE
@@ -70,6 +71,9 @@ CREATE TABLE exams (
     duration_minutes INT DEFAULT 20,
     total_score DECIMAL(5,2) DEFAULT 100.00,
     max_attempts INT DEFAULT 5,
+    is_randomized BOOLEAN DEFAULT FALSE,
+    random_question_count INT DEFAULT 0,
+    question_bank_mode ENUM('EXAM_POOL', 'SKILL_CATEGORY') DEFAULT 'EXAM_POOL',
     is_active BOOLEAN DEFAULT TRUE,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (course_id) REFERENCES courses(id) ON DELETE CASCADE
