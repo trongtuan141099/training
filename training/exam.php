@@ -45,29 +45,29 @@ require_once __DIR__ . '/includes/header.php';
 ?>
 
 <!-- Sticky Exam Header with Timer & Progress -->
-<div class="sticky top-16 z-40 bg-slate-900/95 backdrop-blur-md border border-slate-800 rounded-2xl p-4 mb-6 shadow-2xl">
+<div class="sticky top-16 z-40 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border border-slate-200 dark:border-slate-800 rounded-2xl p-4 mb-6 shadow-sm">
     <div class="flex items-center justify-between flex-wrap gap-3">
         <div>
             <div class="flex items-center space-x-2">
-                <span class="px-2 py-0.5 rounded bg-cyan-950 text-cyan-400 border border-cyan-800 text-[10px] font-bold uppercase">
+                <span class="px-2 py-0.5 rounded bg-blue-50 dark:bg-blue-950 text-blue-700 dark:text-blue-400 border border-blue-200 dark:border-blue-800 text-[10px] font-bold uppercase">
                     Cấp độ <?= $exam['course_level'] ?>
                 </span>
-                <h1 class="text-sm sm:text-base font-black text-white truncate max-w-md">
+                <h1 class="text-sm sm:text-base font-black text-slate-900 dark:text-white truncate max-w-md">
                     <?= htmlspecialchars($exam['title']) ?>
                 </h1>
             </div>
-            <p class="text-[11px] text-slate-400 mt-0.5">
-                Tổng cộng: <strong class="text-white"><?= count($questions) ?> câu</strong> • Điểm chuẩn đạt: <strong class="text-emerald-400"><?= (float)$exam['min_pass_score'] ?>%</strong>
+            <p class="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
+                Tổng cộng: <strong class="text-slate-800 dark:text-white"><?= count($questions) ?> câu</strong> • Điểm chuẩn đạt: <strong class="text-emerald-600 dark:text-emerald-400 font-bold"><?= (float)$exam['min_pass_score'] ?>%</strong>
             </p>
         </div>
 
         <!-- Countdown Timer -->
         <div class="flex items-center space-x-3">
-            <div class="flex items-center space-x-2 px-3.5 py-1.5 rounded-xl bg-slate-950 border border-slate-700 text-amber-400 font-mono text-sm sm:text-base font-bold shadow-inner">
+            <div class="flex items-center space-x-2 px-3.5 py-1.5 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-700 text-amber-600 dark:text-amber-400 font-mono text-sm sm:text-base font-bold shadow-inner">
                 <i class="fa-regular fa-clock animate-pulse"></i>
                 <span id="countdownDisplay">--:--</span>
             </div>
-            <button type="button" onclick="confirmSubmit()" class="touch-tap px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs font-bold transition flex items-center space-x-1.5 shadow-lg shadow-emerald-950">
+            <button type="button" onclick="confirmSubmit()" class="touch-tap px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold transition flex items-center space-x-1.5 shadow-md shadow-emerald-700/20">
                 <i class="fa-solid fa-cloud-arrow-up"></i>
                 <span>NỘP BÀI</span>
             </button>
@@ -76,7 +76,7 @@ require_once __DIR__ . '/includes/header.php';
 </div>
 
 <!-- Main Exam Form -->
-<form id="examForm" method="POST" action="exam_submit.php" class="space-y-8">
+<form id="examForm" method="POST" action="exam_submit.php" class="space-y-6">
     <input type="hidden" name="exam_id" value="<?= $exam['id'] ?>">
 
     <?php foreach ($questions as $idx => $q): ?>
@@ -86,19 +86,19 @@ require_once __DIR__ . '/includes/header.php';
         $config = json_decode($q['answer_config'], true) ?? [];
         $score = (float)$q['score'];
     ?>
-    <div id="q_box_<?= $q['id'] ?>" class="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden shadow-xl">
+    <div id="q_box_<?= $q['id'] ?>" class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl overflow-hidden shadow-sm">
         
         <!-- Question Title Header -->
-        <div class="px-5 py-4 bg-slate-800/80 border-b border-slate-700/80 flex items-start justify-between gap-3">
+        <div class="px-5 py-4 bg-slate-50 dark:bg-slate-950/80 border-b border-slate-200 dark:border-slate-800 flex items-start justify-between gap-3">
             <div class="flex items-start space-x-3">
-                <span class="inline-flex items-center justify-center w-7 h-7 rounded-lg bg-cyan-600 text-white font-bold text-xs shrink-0 mt-0.5">
+                <span class="inline-flex items-center justify-center w-7 h-7 rounded-lg bg-blue-700 text-white font-bold text-xs shrink-0 mt-0.5 shadow-sm">
                     <?= $qNum ?>
                 </span>
                 <div>
-                    <h2 class="text-sm sm:text-base font-bold text-white leading-relaxed">
+                    <h2 class="text-sm sm:text-base font-bold text-slate-900 dark:text-white leading-relaxed">
                         <?= htmlspecialchars($q['prompt']) ?>
                     </h2>
-                    <span class="inline-block mt-1 text-[11px] font-semibold text-cyan-400">
+                    <span class="inline-block mt-1 text-[11px] font-semibold text-blue-700 dark:text-blue-400">
                         <?php 
                             switch ($qType) {
                                 case 'HOTSPOT_PINPOINT': echo '<i class="fa-solid fa-fingerprint mr-1"></i> Tương tác trực quan: Chạm điểm linh kiện trên ảnh'; break;
@@ -112,22 +112,22 @@ require_once __DIR__ . '/includes/header.php';
                     </span>
                 </div>
             </div>
-            <span class="px-2.5 py-1 rounded-lg text-xs font-bold bg-slate-900 text-amber-400 border border-slate-700 shrink-0">
+            <span class="px-2.5 py-1 rounded-lg text-xs font-bold bg-amber-50 dark:bg-amber-950/50 text-amber-700 dark:text-amber-400 border border-amber-200 dark:border-amber-800 shrink-0">
                 <?= $score ?> Điểm
             </span>
         </div>
 
-        <div class="p-5 sm:p-6 bg-slate-950/70">
+        <div class="p-5 sm:p-6 bg-white dark:bg-slate-900">
 
             <!-- 1. SINGLE_CHOICE hoặc TRUE_FALSE -->
             <?php if ($qType === 'SINGLE_CHOICE' || $qType === 'TRUE_FALSE'): ?>
             <div class="space-y-3">
                 <?php foreach ($config['options'] ?? [] as $opt): ?>
-                <label class="flex items-center p-3.5 sm:p-4 rounded-xl bg-slate-900 border border-slate-800 hover:border-cyan-600 cursor-pointer transition touch-manipulation">
+                <label class="flex items-center p-3.5 sm:p-4 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 hover:border-blue-500 cursor-pointer transition touch-manipulation">
                     <input type="radio" name="answers[<?= $q['id'] ?>][selected]" value="<?= htmlspecialchars($opt['id']) ?>"
-                           class="w-5 h-5 text-cyan-600 bg-slate-950 border-slate-700 focus:ring-cyan-500 focus:ring-2">
-                    <span class="ml-3.5 text-xs sm:text-sm font-medium text-slate-200">
-                        <strong class="text-cyan-400 mr-1.5"><?= htmlspecialchars($opt['id']) ?>.</strong>
+                           class="w-5 h-5 text-blue-700 bg-white dark:bg-slate-950 border-slate-300 dark:border-slate-700 focus:ring-blue-600 focus:ring-2">
+                    <span class="ml-3.5 text-xs sm:text-sm font-medium text-slate-800 dark:text-slate-200">
+                        <strong class="text-blue-700 dark:text-blue-400 mr-1.5"><?= htmlspecialchars($opt['id']) ?>.</strong>
                         <?= htmlspecialchars($opt['text']) ?>
                     </span>
                 </label>
@@ -137,13 +137,13 @@ require_once __DIR__ . '/includes/header.php';
             <!-- 2. MULTI_CHOICE -->
             <?php elseif ($qType === 'MULTI_CHOICE'): ?>
             <div class="space-y-3">
-                <p class="text-[11px] text-slate-400 italic mb-2">* Bạn có thể tích chọn nhiều hơn một đáp án đúng.</p>
+                <p class="text-[11px] text-slate-500 dark:text-slate-400 italic mb-2">* Bạn có thể tích chọn nhiều hơn một đáp án đúng.</p>
                 <?php foreach ($config['options'] ?? [] as $opt): ?>
-                <label class="flex items-center p-3.5 sm:p-4 rounded-xl bg-slate-900 border border-slate-800 hover:border-cyan-600 cursor-pointer transition touch-manipulation">
+                <label class="flex items-center p-3.5 sm:p-4 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 hover:border-blue-500 cursor-pointer transition touch-manipulation">
                     <input type="checkbox" name="answers[<?= $q['id'] ?>][selected][]" value="<?= htmlspecialchars($opt['id']) ?>"
-                           class="w-5 h-5 rounded text-cyan-600 bg-slate-950 border-slate-700 focus:ring-cyan-500 focus:ring-2">
-                    <span class="ml-3.5 text-xs sm:text-sm font-medium text-slate-200">
-                        <strong class="text-cyan-400 mr-1.5"><?= htmlspecialchars($opt['id']) ?>.</strong>
+                           class="w-5 h-5 rounded text-blue-700 bg-white dark:bg-slate-950 border-slate-300 dark:border-slate-700 focus:ring-blue-600 focus:ring-2">
+                    <span class="ml-3.5 text-xs sm:text-sm font-medium text-slate-800 dark:text-slate-200">
+                        <strong class="text-blue-700 dark:text-blue-400 mr-1.5"><?= htmlspecialchars($opt['id']) ?>.</strong>
                         <?= htmlspecialchars($opt['text']) ?>
                     </span>
                 </label>
@@ -153,8 +153,8 @@ require_once __DIR__ . '/includes/header.php';
             <!-- 3. DRAG_DROP_SEQUENCE -->
             <?php elseif ($qType === 'DRAG_DROP_SEQUENCE'): ?>
             <div>
-                <p class="text-xs text-slate-400 mb-3">
-                    <i class="fa-solid fa-hand-pointer text-cyan-400 mr-1"></i>
+                <p class="text-xs text-slate-500 dark:text-slate-400 mb-3">
+                    <i class="fa-solid fa-hand-pointer text-blue-700 dark:text-blue-400 mr-1"></i>
                     Dùng ngón tay <strong>kéo thả</strong> hoặc bấm nút <strong>mũi tên [Lên/Xuống]</strong> để sắp xếp thứ tự các bước:
                 </p>
                 <input type="hidden" id="seq_input_<?= $q['id'] ?>" name="answers[<?= $q['id'] ?>]" value="">
@@ -166,24 +166,24 @@ require_once __DIR__ . '/includes/header.php';
                         shuffle($shuffledItems);
                         foreach ($shuffledItems as $sIdx => $item):
                     ?>
-                    <div class="sequence-item flex items-center justify-between p-3.5 rounded-xl bg-slate-900 border border-slate-700 hover:border-cyan-500 cursor-grab active:cursor-grabbing transition"
+                    <div class="sequence-item flex items-center justify-between p-3.5 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 hover:border-blue-500 cursor-grab active:cursor-grabbing transition shadow-sm"
                          data-step-id="<?= htmlspecialchars($item['id']) ?>">
                         <div class="flex items-center space-x-3">
-                            <span class="step-index-badge w-6 h-6 rounded-md bg-slate-800 text-cyan-400 font-mono font-bold text-xs flex items-center justify-center border border-slate-700">
+                            <span class="step-index-badge w-6 h-6 rounded-md bg-blue-50 dark:bg-slate-800 text-blue-700 dark:text-blue-400 font-mono font-bold text-xs flex items-center justify-center border border-blue-200 dark:border-slate-700">
                                 <?= $sIdx + 1 ?>
                             </span>
-                            <span class="text-xs sm:text-sm font-medium text-slate-200">
+                            <span class="text-xs sm:text-sm font-medium text-slate-800 dark:text-slate-200">
                                 <?= htmlspecialchars($item['text']) ?>
                             </span>
                         </div>
                         <div class="flex items-center space-x-1 shrink-0 ml-2">
-                            <button type="button" class="btn-move-up p-2 text-slate-400 hover:text-cyan-300 hover:bg-slate-800 rounded-lg touch-tap" title="Di chuyển lên">
+                            <button type="button" class="btn-move-up p-2 text-slate-400 hover:text-blue-700 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg touch-tap" title="Di chuyển lên">
                                 <i class="fa-solid fa-chevron-up"></i>
                             </button>
-                            <button type="button" class="btn-move-down p-2 text-slate-400 hover:text-cyan-300 hover:bg-slate-800 rounded-lg touch-tap" title="Di chuyển xuống">
+                            <button type="button" class="btn-move-down p-2 text-slate-400 hover:text-blue-700 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg touch-tap" title="Di chuyển xuống">
                                 <i class="fa-solid fa-chevron-down"></i>
                             </button>
-                            <span class="p-2 text-slate-500 cursor-grab hidden sm:inline-block">
+                            <span class="p-2 text-slate-400 cursor-grab hidden sm:inline-block">
                                 <i class="fa-solid fa-grip-vertical"></i>
                             </span>
                         </div>
@@ -196,22 +196,22 @@ require_once __DIR__ . '/includes/header.php';
             <?php elseif ($qType === 'HOTSPOT_PINPOINT'): ?>
             <div>
                 <div class="flex items-center justify-between mb-2">
-                    <p class="text-xs text-slate-400">
+                    <p class="text-xs text-slate-500 dark:text-slate-400">
                         <i class="fa-solid fa-circle-dot text-rose-500 mr-1"></i>
                         Hãy <strong>chạm hoặc bấm trực tiếp</strong> lên ảnh để đặt điểm định vị mục tiêu:
                     </p>
-                    <button type="button" onclick="clearHotspot(<?= $q['id'] ?>)" class="text-xs text-slate-400 hover:text-rose-400 underline">
+                    <button type="button" onclick="clearHotspot(<?= $q['id'] ?>)" class="text-xs text-slate-500 hover:text-rose-600 underline font-medium">
                         <i class="fa-solid fa-rotate-left mr-1"></i> Đặt lại điểm chạm
                     </button>
                 </div>
 
                 <input type="hidden" id="hotspot_input_<?= $q['id'] ?>" name="answers[<?= $q['id'] ?>]" value="">
 
-                <div class="relative w-full rounded-xl overflow-hidden border-2 border-slate-700 bg-slate-900 shadow-inner flex items-center justify-center">
+                <div class="relative w-full rounded-xl overflow-hidden border-2 border-slate-300 dark:border-slate-700 bg-slate-900 shadow-inner flex items-center justify-center">
                     <canvas id="canvas_<?= $q['id'] ?>" class="w-full cursor-crosshair touch-none"></canvas>
                 </div>
 
-                <div id="hotspot_status_<?= $q['id'] ?>" class="mt-2 text-[11px] text-slate-400 text-center font-mono">
+                <div id="hotspot_status_<?= $q['id'] ?>" class="mt-2 text-[11px] text-slate-500 dark:text-slate-400 text-center font-mono">
                     Chưa chọn tọa độ. Chạm vào ảnh để ghim vị trí.
                 </div>
             </div>
@@ -220,22 +220,22 @@ require_once __DIR__ . '/includes/header.php';
             <?php elseif ($qType === 'POLYGON_DEFECT'): ?>
             <div>
                 <div class="flex items-center justify-between mb-2">
-                    <p class="text-xs text-slate-400">
-                        <i class="fa-solid fa-draw-polygon text-amber-400 mr-1"></i>
+                    <p class="text-xs text-slate-500 dark:text-slate-400">
+                        <i class="fa-solid fa-draw-polygon text-amber-500 mr-1"></i>
                         Dùng ngón tay <strong>vẽ khoanh vùng bao quanh</strong> khu vực phát hiện lỗi:
                     </p>
-                    <button type="button" onclick="clearPolygon(<?= $q['id'] ?>)" class="text-xs text-slate-400 hover:text-rose-400 underline">
+                    <button type="button" onclick="clearPolygon(<?= $q['id'] ?>)" class="text-xs text-slate-500 hover:text-rose-600 underline font-medium">
                         <i class="fa-solid fa-eraser mr-1"></i> Xóa vùng đã vẽ
                     </button>
                 </div>
 
                 <input type="hidden" id="polygon_input_<?= $q['id'] ?>" name="answers[<?= $q['id'] ?>]" value="">
 
-                <div class="relative w-full rounded-xl overflow-hidden border-2 border-slate-700 bg-slate-900 shadow-inner flex items-center justify-center">
+                <div class="relative w-full rounded-xl overflow-hidden border-2 border-slate-300 dark:border-slate-700 bg-slate-900 shadow-inner flex items-center justify-center">
                     <canvas id="canvas_<?= $q['id'] ?>" class="w-full cursor-crosshair touch-none"></canvas>
                 </div>
 
-                <div id="polygon_status_<?= $q['id'] ?>" class="mt-2 text-[11px] text-slate-400 text-center font-mono">
+                <div id="polygon_status_<?= $q['id'] ?>" class="mt-2 text-[11px] text-slate-500 dark:text-slate-400 text-center font-mono">
                     Giữ và kéo ngón tay để vẽ vùng khoanh lỗi.
                 </div>
             </div>
@@ -243,14 +243,14 @@ require_once __DIR__ . '/includes/header.php';
             <!-- 6. ESSAY (Tự luận) -->
             <?php elseif ($qType === 'ESSAY'): ?>
             <div>
-                <p class="text-xs text-slate-400 mb-2">
-                    <i class="fa-solid fa-pen mr-1 text-cyan-400"></i>
+                <p class="text-xs text-slate-500 dark:text-slate-400 mb-2">
+                    <i class="fa-solid fa-pen mr-1 text-blue-700 dark:text-blue-400"></i>
                     Nhập câu trả lời chi tiết của bạn vào khung bên dưới:
                 </p>
                 <textarea name="answers[<?= $q['id'] ?>][text]" rows="5" required
                           placeholder="Trình bày các bước thực hiện an toàn theo đúng quy chuẩn..."
-                          class="w-full p-4 bg-slate-900 border border-slate-700 rounded-xl text-xs sm:text-sm text-white placeholder-slate-500 focus:outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 transition leading-relaxed"></textarea>
-                <p class="text-[11px] text-slate-500 mt-1 italic">
+                          class="w-full p-4 bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-xl text-xs sm:text-sm text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:border-blue-600 focus:ring-1 focus:ring-blue-600 transition leading-relaxed"></textarea>
+                <p class="text-[11px] text-slate-400 mt-1 italic">
                     * Câu hỏi tự luận sẽ được Trainer xem xét và chấm điểm thủ công sau khi nộp bài.
                 </p>
             </div>
@@ -262,7 +262,7 @@ require_once __DIR__ . '/includes/header.php';
 
     <!-- Bottom Submit Button -->
     <div class="pt-6 pb-12 text-center">
-        <button type="button" onclick="confirmSubmit()" class="touch-tap px-10 py-4 bg-gradient-to-r from-emerald-600 to-cyan-600 hover:from-emerald-500 hover:to-cyan-500 text-white rounded-2xl font-black text-sm tracking-wide shadow-2xl shadow-emerald-950 transition active:scale-95 inline-flex items-center space-x-2">
+        <button type="button" onclick="confirmSubmit()" class="touch-tap px-10 py-3.5 bg-[#1D4ED8] hover:bg-blue-800 text-white rounded-2xl font-black text-sm tracking-wide shadow-xl shadow-blue-700/25 transition active:scale-95 inline-flex items-center space-x-2">
             <i class="fa-solid fa-check-double text-lg"></i>
             <span>HOÀN TẤT & NỘP BÀI THI</span>
         </button>
@@ -271,21 +271,21 @@ require_once __DIR__ . '/includes/header.php';
 </form>
 
 <!-- Modal Xác nhận nộp bài -->
-<div id="submitConfirmModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
-    <div class="bg-slate-900 border border-slate-700 rounded-2xl max-w-sm w-full p-6 text-center shadow-2xl">
-        <div class="w-14 h-14 mx-auto mb-3 rounded-2xl bg-amber-500/20 text-amber-400 border border-amber-500/30 flex items-center justify-center text-2xl">
+<div id="submitConfirmModal" class="fixed inset-0 bg-slate-950/70 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+    <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl max-w-sm w-full p-6 text-center shadow-2xl">
+        <div class="w-14 h-14 mx-auto mb-3 rounded-2xl bg-amber-50 dark:bg-amber-500/20 text-amber-600 dark:text-amber-400 border border-amber-200 dark:border-amber-500/30 flex items-center justify-center text-2xl">
             <i class="fa-solid fa-clipboard-question"></i>
         </div>
-        <h3 class="text-lg font-bold text-white mb-1">Xác nhận nộp bài thi?</h3>
-        <p class="text-xs text-slate-400 mb-6">
+        <h3 class="text-lg font-bold text-slate-900 dark:text-white mb-1">Xác nhận nộp bài thi?</h3>
+        <p class="text-xs text-slate-500 dark:text-slate-400 mb-6">
             Bạn đã kiểm tra kỹ toàn bộ câu trả lời chưa? Sau khi nộp, hệ thống sẽ tự động chấm điểm và cập nhật Skillmap.
         </p>
 
         <div class="grid grid-cols-2 gap-3 text-xs font-bold">
-            <button type="button" onclick="closeConfirmModal()" class="py-3 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl transition">
+            <button type="button" onclick="closeConfirmModal()" class="py-3 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 rounded-xl transition">
                 Kiểm tra lại
             </button>
-            <button type="button" onclick="doFinalSubmit()" class="py-3 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl transition shadow-lg shadow-emerald-950">
+            <button type="button" onclick="doFinalSubmit()" class="py-3 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl transition shadow-lg shadow-emerald-700/20">
                 Xác nhận nộp
             </button>
         </div>
